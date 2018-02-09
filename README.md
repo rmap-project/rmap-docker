@@ -6,8 +6,7 @@
 
 1. Check out this repository, and cd into `rmap-docker`
 2. Edit `.env`
--  Look at the `rmap` service and change any values
--  `RMAP_BASEURL: ` **must** be changed
+-  `RMAP_BASEURL` must be changed if you are on `docker-machine`
 -  `ACTIVE_SPRING_PROFILES` (_optional_, e.g. to change the idservice used)
 3. Run `docker-compose up -d` to launch the containers in the background
 4. Run `docker logs -f rmap-apps` to determine when RMap is up and ready
