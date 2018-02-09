@@ -23,6 +23,8 @@ services:
     env_file: .env
     ports:
       - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
   solr:
      container_name: rmap-solr
@@ -114,3 +116,5 @@ volumes:
   rdf4j-data:
 
   solr-cores:
+
+  postgres-data:
