@@ -1,0 +1,116 @@
+version: '2.0'
+
+services:
+
+  # TODO: volumes?
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    env_file: .env
+    environment:
+      ZOOKEEPER_CLIENT_PORT: "${ZOOKEEPER_CLIENT_PORT}"
+      ZOOKEEPER_TICK_TIME: "${ZOOKEEPER_TICK_TIME}"
+    ports: 
+      - "${ZOOKEEPER_CLIENT_PORT}:${ZOOKEEPER_CLIENT_PORT}"
+    extra_hosts:
+      - "moby:127.0.0.1"
+      - "default:127.0.0.1"
+      
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    command: postgres
+    env_file: .env
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+
+  solr:
+     container_name: rmap-solr
+     image: rmap/rmap-solr:1.0.1-beta-SNAPSHOT
+     build: ./rmap-solr/1.0.1-beta-SNAPSHOT
+     env_file: .env
+     ports:
+       - "${SOLR_PORT}:${SOLR_PORT}"
+       - "${SOLR_DEBUG_PORT}:${SOLR_DEBUG_PORT}"
+     volumes:
+       - solr-cores:/opt/solr/server/solr/mycores
+
+  rdf4j:
+    container_name: rdf4j-apps
+    build: ./rdf4j-webapps/2.2.2
+    image: rmap/rdf4j-webapps:2.2.2
+    user: root
+    env_file: .env
+    environment:
+      JAVA_OPTIONS: "-Djetty.http.port=${RDF4J_PORT} -Dorg.eclipse.rdf4j.appdata.basedir=/rdf4j-data"
+    ports:
+      - "${RDF4J_PORT}:${RDF4J_PORT}"
+    volumes:
+      - rdf4j-data:/rdf4j-data
+
+  # TODO: volumes?
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    env_file: .env
+    environment:
+      KAFKA_BROKER_ID: "${KAFKA_BROKER_ID}"
+      KAFKA_ZOOKEEPER_CONNECT: "${KAFKA_ZOOKEEPER_CONNECT}"
+      KAFKA_ADVERTISED_LISTENERS: "${KAFKA_ADVERTISED_LISTENERS}"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}"
+    ports:
+      - "${RMAP_KAFKA_PORT}:${RMAP_KAFKA_PORT}"
+    extra_hosts:
+      - "moby:127.0.0.1"
+      - "default:127.0.0.1"
+    depends_on:
+      - "zookeeper"
+    links:
+      - "zookeeper"
+
+  # TODO: volumes?
+  rmap:
+    container_name: rmap-apps
+    build: ./rmap-webapps/1.0.1-beta-SNAPSHOT
+    image: rmap/rmap-webapps:1.0.1-beta-SNAPSHOT
+    env_file: .env
+    environment:
+      JAVA_OPTIONS: "-Djetty.http.port=${RMAP_PORT}
+                     -Dspring.profiles.active=${ACTIVE_SPRING_PROFILES}
+                     -Dinfo.rmapproject.indexing.level=INFO
+                     -Dorg.springframework.level=INFO
+                     -Dorg.kafka.level=INFO
+                     -Drmapweb.admin-tool-enabled=true
+                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${RMAP_DEBUG_PORT}" # -Drmap.configFile=classpath:/rmap.properties"
+      bootstrap_servers: "kafka:${RMAP_KAFKA_PORT}"
+      authdb_driverClassName: "org.postgresql.Driver"
+      authdb_url: "jdbc:postgresql://postgres:${DB_PORT}/${DB_NAME}"
+      authdb_username: "postgres"
+      authdb_password: ""
+      authdb_hibernate_dialect: "org.hibernate.dialect.PostgreSQL95Dialect"
+      authdb_hibernate_hbm2ddl_auto: "update"
+      rmap_solr_url: "http://solr:8983/solr"
+      rdf4jhttp_repository_name: "docker"
+      rdf4jhttp_repository_url: "http://rdf4j:${RDF4J_PORT}/rdf4j-server/"
+      rmapauth_baseUrl: "${RMAP_BASEURL}"
+    ports:
+      - "${RMAP_PORT}:${RMAP_PORT}"
+      - "${RMAP_DEBUG_PORT}:${RMAP_DEBUG_PORT}"
+    depends_on:
+      - "solr"
+      - "kafka"
+      - "rdf4j"
+      - "postgres"
+    links:
+      - "solr"
+      - "kafka"
+      - "rdf4j"
+      - "postgres"
+
+volumes:
+
+  rdf4j-data:
+
+  solr-cores:
