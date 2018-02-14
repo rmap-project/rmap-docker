@@ -87,7 +87,8 @@ services:
                      -Dorg.springframework.level=INFO
                      -Dorg.kafka.level=INFO
                      -Drmapweb.admin-tool-enabled=true
-                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${RMAP_DEBUG_PORT}" # -Drmap.configFile=classpath:/rmap.properties"
+                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${RMAP_DEBUG_PORT}
+                     -Drmap.configFile=file:///rmap.properties"
       bootstrap_servers: "kafka:${RMAP_KAFKA_PORT}"
       authdb_driverClassName: "org.postgresql.Driver"
       authdb_url: "jdbc:postgresql://postgres:${DB_PORT}/${DB_NAME}"

@@ -10,8 +10,6 @@ WORKDIR /tmp
 
 ADD settings.xml settings.xml
 
-ADD rmap.properties /var/lib/jetty/lib/ext/rmap.properties
-
 RUN apk --update --no-cache -X http://mirror.clarkson.edu/alpine/edge/community/ add maven && \
     mvn -s ./settings.xml org.apache.maven.plugins:maven-dependency-plugin:${MDP_VERSION}:copy -Dartifact=info.rmapproject:rmap-webapp:${RMAP_VERSION}:war -DoutputDirectory=`/bin/pwd` -Dmdep.stripVersion=true && \
     mvn -s ./settings.xml org.apache.maven.plugins:maven-dependency-plugin:${MDP_VERSION}:copy -Dartifact=info.rmapproject:rmap-api:${RMAP_VERSION}:war -DoutputDirectory=`/bin/pwd` -Dmdep.stripVersion=true && \
@@ -22,12 +20,15 @@ RUN apk --update --no-cache -X http://mirror.clarkson.edu/alpine/edge/community/
     chown jetty:jetty /var/lib/jetty/webapps/app.war && \
     mv postgresql.jar /var/lib/jetty/lib/ext/ && \
     chown jetty:jetty /var/lib/jetty/lib/ext/postgresql.jar && \
-    chown jetty:jetty /var/lib/jetty/lib/ext/rmap.properties && \
     rm -rf ~/.m2 && \
     apk del maven && \
     rm -rf /var/cache/apk/* && \
     rm -rf /var/lib/apk/*  && \
     rm -rf hsperfdata_root
+
+ADD rmap.properties /rmap.properties
+
+RUN chown jetty:jetty /rmap.properties
 
 RUN mkdir -p /mvstore
 
