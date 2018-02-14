@@ -76,7 +76,7 @@ services:
       - "zookeeper"
 
   rmap:
-    container_name: rmap-apps
+    container_name: rmap
     build: ./rmap-webapps/1.0.1-beta-SNAPSHOT
     image: rmap/rmap-webapps:1.0.1-beta-SNAPSHOT
     env_file: .env
