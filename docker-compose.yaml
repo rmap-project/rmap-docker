@@ -99,7 +99,8 @@ services:
       rmap_solr_url: "http://solr:8983/solr"
       rdf4jhttp_repository_name: "docker"
       rdf4jhttp_repository_url: "http://rdf4j:${RDF4J_PORT}/rdf4j-server/"
-      rmapauth_baseUrl: "${RMAP_BASEURL}"
+      rmapauth_baseUrl: "${RMAP_BASE_URL}"
+      rmapcore_adminAgentUri: "${RMAP_ADMIN_AGENT_URI}"
     ports:
       - "${RMAP_PORT}:${RMAP_PORT}"
       - "${RMAP_DEBUG_PORT}:${RMAP_DEBUG_PORT}"
