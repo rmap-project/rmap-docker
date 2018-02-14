@@ -6,13 +6,14 @@
 
 1. Check out this repository, and cd into `rmap-docker`
 2. Edit `.env`
-    -  `RMAP_BASEURL` must be changed if you are on `docker-machine`
+    -  `RMAP_BASE_URL` and `RMAP_ADMIN_AGENT_URI` must be changed if you are on `docker-machine`
     -  `ACTIVE_SPRING_PROFILES` (_optional_, e.g. to change the idservice used)
+    -  `*_LOG_LEVEL` (_optional_, e.g. to change the amount of logging to the console)
 3. One of:
     - `docker-compose pull` to retrieve the latest images on Docker Hub
-    - `docker-compose build --nocache` to build images using the SNAPSHOTs from the Maven repository
+    - `docker-compose build --nocache` to build images using the `SNAPSHOT`s from the Maven repository (`SNAPSHOT` builds represent successful builds of [`master`](https://travis-ci.org/rmap-project/rmap))
 4. Run `docker-compose up -d` to launch the containers in the background
-5. Run `docker logs -f rmap-apps` to determine when RMap is up and ready
+5. Run `docker logs -f rmap` to determine when RMap is up and ready
 
 If this is your very first time launching RMap from Docker, you'll need to complete some one-time startup tasks below.
 
@@ -49,7 +50,7 @@ The Spring profiles that are in effect by default are:
 * prod-kafka
 * auto-start-indexing
 
-Modify the value of `ACTIVE_SPRING_PROFILES` in `.env`, then run `docker-compose down && docker-compose up -d` to update.
+Modify the value of `ACTIVE_SPRING_PROFILES` in `.env`, then run `docker stop rmap && docker-compose up -d` to update.
 
 ### Data persistence
 
@@ -74,3 +75,22 @@ These are tasks that need to be completed when first launching RMap with Docker.
     - Accept defaults for indexes, strict mode etc.
     
 ### Create a RMap user
+
+> `docker-machine` users substitute your Docker machine IP address for `localhost`
+
+> You **must** properly set the `RMAP_BASE_URL` and `RMAP_ADMIN_AGENT_URI` variables in `.env` if you are running on `docker-machine`
+
+1. Navigate to the RMap application and login as the `rmapAdmin` (password `changeme`): `http://localhost:8080/app/admin/login`
+2. Click on the "_Manage Users_" link, then "_Add new user_"
+3. Fill out the new user form, and insure that "_User enabled?_" and "_Generate RMap:Agent_" is set to "_Yes_"
+4. After creating the user, click on "_Return to Users list_", and you should see your newly created user in the list of users.
+5. Click on the "_keys_" link for the user, then "_Create new key_".  Fill out the form and submit.  You should see a newly created key in the list of keys for the user.
+6. Finally, click on the "_download_" link for the newly created key.  The downloaded key is the "username" and "password" that you will use when authenticating to the RMap API (e.g. the value to the `curl -u` parameter)
+
+### Create the 'loader' database (optional)
+
+> `docker-machine` users substitute your Docker machine IP address for `localhost`
+
+If you plan to run the RMap loader, you will need to login to the Postgres database at `jdbc:postgresql://localhost:5432/` (user: `postgres` (no password)).  After logging into the database, create a database named `loader`:
+ 
+* `CREATE DATABASE loader WITH ENCODING = "UTF-8"`
