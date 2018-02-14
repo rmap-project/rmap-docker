@@ -83,9 +83,12 @@ services:
     environment:
       JAVA_OPTIONS: "-Djetty.http.port=${RMAP_PORT}
                      -Dspring.profiles.active=${ACTIVE_SPRING_PROFILES}
-                     -Dinfo.rmapproject.indexing.level=INFO
-                     -Dorg.springframework.level=INFO
-                     -Dorg.kafka.level=INFO
+                     -Dinfo.rmapproject.level=${RMAP_LOG_LEVEL}
+                     -Dinfo.rmapproject.indexing.level=${RMAP_INDEXING_LOG_LEVEL}
+                     -Dorg.springframework.level=${SPRING_LOG_LEVEL}
+                     -Dorg.kafka.level=${KAFKA_LOG_LEVEL}
+                     -Dorg.springframework.jdbc.level=${SPRING_JDBC_LOG_LEVEL}
+                     -Dorg.springframework.kafka=${KAFKA_LOG_LEVEL}
                      -Drmapweb.admin-tool-enabled=true
                      -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${RMAP_DEBUG_PORT}
                      -Drmap.configFile=file:///rmap.properties"
