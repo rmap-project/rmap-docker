@@ -29,6 +29,10 @@ RUN apk --update --no-cache -X http://mirror.clarkson.edu/alpine/edge/community/
     rm -rf /var/lib/apk/*  && \
     rm -rf hsperfdata_root
 
+RUN mkdir -p /mvstore
+
+RUN chown -R jetty:jetty /mvstore
+
 WORKDIR $JETTY_BASE
 
 USER jetty

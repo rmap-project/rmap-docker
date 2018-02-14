@@ -75,7 +75,6 @@ services:
     links:
       - "zookeeper"
 
-  # TODO: volumes?
   rmap:
     container_name: rmap-apps
     build: ./rmap-webapps/1.0.1-beta-SNAPSHOT
@@ -101,9 +100,12 @@ services:
       rdf4jhttp_repository_url: "http://rdf4j:${RDF4J_PORT}/rdf4j-server/"
       rmapauth_baseUrl: "${RMAP_BASE_URL}"
       rmapcore_adminAgentUri: "${RMAP_ADMIN_AGENT_URI}"
+      idservice_maxStoreSize: 50
     ports:
       - "${RMAP_PORT}:${RMAP_PORT}"
       - "${RMAP_DEBUG_PORT}:${RMAP_DEBUG_PORT}"
+    volumes:
+      - rmap-idstore:/mvstore
     depends_on:
       - "solr"
       - "kafka"
@@ -128,3 +130,5 @@ volumes:
   kafka-lib:
 
   zk-data:
+
+  rmap-idstore:
